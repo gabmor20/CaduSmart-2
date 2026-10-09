@@ -49,24 +49,27 @@ fun roleLabel(role: String) = when (role) {
 private fun initials(name: String) =
     name.split(" ").filter { it.isNotBlank() }.take(2).joinToString("") { it.first().uppercase() }
 
+/** [showHeader] = false cuando va dentro de la pestaña "Mi perfil" del Admin (ya tiene su propia cabecera). */
 @Composable
-fun ProfileScreen(vm: ProfileViewModel = hiltViewModel()) {
+fun ProfileScreen(showHeader: Boolean = true, vm: ProfileViewModel = hiltViewModel()) {
     val state by vm.state.collectAsStateWithLifecycle()
     var confirmLogout by remember { mutableStateOf(false) }
 
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.primary)
-                .statusBarsPadding()
-                .padding(horizontal = 20.dp, vertical = 16.dp)
-        ) {
-            Text(
-                "Mi perfil",
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onPrimary
-            )
+        if (showHeader) {
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.primary)
+                    .statusBarsPadding()
+                    .padding(horizontal = 20.dp, vertical = 16.dp)
+            ) {
+                Text(
+                    "Mi perfil",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            }
         }
 
         when {

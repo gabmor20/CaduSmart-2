@@ -34,6 +34,8 @@ import androidx.navigation.compose.rememberNavController
 import com.cadusmart.domain.Role
 import com.cadusmart.ui.MainViewModel
 import com.cadusmart.ui.SessionState
+import com.cadusmart.ui.alerts.AlertsScreen
+import com.cadusmart.ui.auth.ChangePasswordScreen
 import com.cadusmart.ui.auth.LoginScreen
 import com.cadusmart.ui.auth.RegisterScreen
 import com.cadusmart.ui.inventory.InventoryScreen
@@ -41,6 +43,9 @@ import com.cadusmart.ui.inventory.ProductDetailScreen
 import com.cadusmart.ui.inventory.ProductFormScreen
 import com.cadusmart.ui.inventory.TrashScreen
 import com.cadusmart.ui.profile.ProfileScreen
+import com.cadusmart.ui.scanner.ScannerScreen
+import com.cadusmart.ui.users.UserFormScreen
+import com.cadusmart.ui.users.UsersScreen
 
 private data class Tab(val route: String, val label: String, val icon: ImageVector)
 
@@ -63,6 +68,13 @@ fun AppNavHost(vm: MainViewModel = hiltViewModel()) {
     }
 
     val current = session
+
+    // Contraseña temporal: no se puede usar la app hasta cambiarla
+    if (current is SessionState.LoggedIn && current.mustChangePassword) {
+        ChangePasswordScreen()
+        return
+    }
+
     val role = (current as? SessionState.LoggedIn)?.role
     val currentRoute = nav.currentBackStackEntryAsState().value?.destination?.route
     val tabs = role?.let(::tabsFor).orEmpty()
@@ -120,15 +132,14 @@ fun AppNavHost(vm: MainViewModel = hiltViewModel()) {
                     } else null
                 )
             }
-            composable(Routes.ALERTS) { Placeholder("Alertas") }
+            composable(Routes.ALERTS) {
+                AlertsScreen(onOpen = { id -> nav.navigate(Routes.productDetail(id)) })
+            }
             composable(Routes.PROFILE) { ProfileScreen() }
             composable(Routes.USERS) {
-                // Temporal: aquí irá la lista de usuarios con la pestaña "Mi perfil"
-                Placeholder(
-                    "Usuarios",
-                    "Nuevo usuario" to { nav.navigate(Routes.USER_NEW) },
-                    "Editar usuario 002" to { nav.navigate(Routes.userEdit(2)) },
-                    "Cerrar sesión" to { vm.logout() }
+                UsersScreen(
+                    onAdd = { nav.navigate(Routes.USER_NEW) },
+                    onEdit = { id -> nav.navigate(Routes.userEdit(id)) }
                 )
             }
 
@@ -140,7 +151,14 @@ fun AppNavHost(vm: MainViewModel = hiltViewModel()) {
                 )
             }
             composable(Routes.SCANNER) {
-                Placeholder("Escanear producto (Sprint 3)", "Volver" to { nav.popBackStack() })
+                ScannerScreen(
+                    onBack = { nav.popBackStack() },
+                    onResult = { code ->
+                        // Se entrega al formulario anterior (lo lee ProductFormViewModel)
+                        nav.previousBackStackEntry?.savedStateHandle?.set("barcode", code)
+                        nav.popBackStack()
+                    }
+                )
             }
             composable(Routes.PRODUCT_DETAIL) {
                 ProductDetailScreen(
@@ -161,10 +179,10 @@ fun AppNavHost(vm: MainViewModel = hiltViewModel()) {
 
             // ---- Usuarios (Admin) ----
             composable(Routes.USER_NEW) {
-                Placeholder("Nuevo usuario", "Volver" to { nav.popBackStack() })
+                UserFormScreen(onBack = { nav.popBackStack() })
             }
             composable(Routes.USER_EDIT) {
-                Placeholder("Editar usuario", "Volver" to { nav.popBackStack() })
+                UserFormScreen(onBack = { nav.popBackStack() })
             }
         }
     }

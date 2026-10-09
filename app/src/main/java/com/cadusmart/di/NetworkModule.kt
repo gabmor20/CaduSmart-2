@@ -4,6 +4,7 @@ import com.cadusmart.BuildConfig
 import com.cadusmart.data.api.AuthApi
 import com.cadusmart.data.api.AuthInterceptor
 import com.cadusmart.data.api.ProductApi
+import com.cadusmart.data.api.UserApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -47,4 +48,8 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideProductApi(retrofit: Retrofit): ProductApi = retrofit.create(ProductApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideUserApi(retrofit: Retrofit): UserApi = retrofit.create(UserApi::class.java)
 }

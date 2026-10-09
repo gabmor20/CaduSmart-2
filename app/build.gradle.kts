@@ -25,7 +25,7 @@ android {
         debug {
             // Emulador: 10.0.2.2 = el localhost de tu PC.
             // Celular real: cambia por la IP de tu PC, p. ej. "http://192.168.1.15:3000/" emulator "http://10.0.2.2:3000/\
-            buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:3000/\"")
+            buildConfigField("String", "BASE_URL", "\"http://localhost:3000/\"")
         }
         release {
             // Cuando publiques el backend, pon aquí su URL https (debe terminar en "/")
@@ -47,6 +47,15 @@ android {
 }
 
 dependencies {
+    // Sprints 2 y 3
+    implementation(libs.androidx.work)
+    implementation(libs.androidx.hilt.work)
+    ksp(libs.androidx.hilt.compiler)
+    implementation(libs.camerax.core)
+    implementation(libs.camerax.camera2)
+    implementation(libs.camerax.lifecycle)
+    implementation(libs.camerax.view)
+    implementation(libs.mlkit.barcode)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)

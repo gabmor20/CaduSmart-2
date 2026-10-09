@@ -12,7 +12,7 @@ object Routes {
 
     // Inventario
     const val PRODUCT_NEW = "product_new"
-    const val SCANNER = "scanner"
+    const val SCANNER = "com/cadusmart/ui/scanner"
     const val PRODUCT_DETAIL = "product/{id}"
     const val PRODUCT_EDIT = "product_edit/{id}"
     const val TRASH = "trash"       // papelera: solo Admin

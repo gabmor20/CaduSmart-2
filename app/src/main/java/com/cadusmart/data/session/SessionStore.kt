@@ -3,6 +3,7 @@ package com.cadusmart.data.session
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -21,6 +22,7 @@ class SessionStore @Inject constructor(
 ) {
     private val tokenKey = stringPreferencesKey("token")
     private val roleKey = stringPreferencesKey("role")
+    private val mustChangeKey = booleanPreferencesKey("must_change_password")
 
     val token: Flow<String?> = context.sessionDataStore.data.map { it[tokenKey] }
 
@@ -30,11 +32,19 @@ class SessionStore @Inject constructor(
         else prefs[roleKey]?.let { runCatching { Role.valueOf(it) }.getOrNull() }
     }
 
-    suspend fun save(token: String, role: Role) {
+    /** true = la contraseña es temporal y hay que cambiarla antes de usar la app */
+    val mustChangePassword: Flow<Boolean> = context.sessionDataStore.data.map { it[mustChangeKey] ?: false }
+
+    suspend fun save(token: String, role: Role, mustChangePassword: Boolean = false) {
         context.sessionDataStore.edit {
             it[tokenKey] = token
             it[roleKey] = role.name
+            it[mustChangeKey] = mustChangePassword
         }
+    }
+
+    suspend fun setMustChangePassword(value: Boolean) {
+        context.sessionDataStore.edit { it[mustChangeKey] = value }
     }
 
     suspend fun clear() {
